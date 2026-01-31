@@ -1,3 +1,6 @@
+import json
+from dataclasses import asdict
+
 from data.eventframe import EventFrame
 from data.frame import Frame
 from data.framestack import FrameStack
@@ -35,5 +38,7 @@ def process_frames():
         if len(stack.elements) > 5 * fps:
             stack.dequeue()
 
-        # Merge consecutive events
-        order.mergeConsecutiveEvents()
+    # Merge consecutive events
+    order.mergeConsecutiveEvents()
+    json_array = json.dumps([asdict(e) for e in order.orderedEvents], indent=4)
+    print(json_array)
