@@ -28,39 +28,28 @@ class LeftOfNetEvent(Event): pass
 # --- BASE TESTER ---
 
 class SideTester:
-    """
-    Generic tester to detect if the ball is on a specific side of the net.
-    """
+    def __init__(self, side: str):
+        self.side = side
+        self.net_pos_x = 11.885
 
-    def __init__(self, target_right: bool, event_class: type):
-        self.target_right = target_right
-        self.event_class = event_class
-        self.net_pos_x = 11.885  # Half of 23.77m
+    def test_event(self, frames: FrameStack):
+        recent = frames.takeFrames(1)
 
-    class SideTester:
-        def __init__(self, side: str):
-            self.side = side
-            self.net_pos_x = 11.885
-
-        def test_event(self, frames: FrameStack):
-            recent = frames.takeFrames(1)
-
-            # Guard against nulls
-            if not recent or recent[0].ball is None:
-                return None
-
-            ball_x = recent[0].ball.pos.x
-
-            if self.side == "right":
-                if ball_x > self.net_pos_x:
-                    return RightOfNetEvent()
-
-            if self.side == "left":
-                if ball_x <= self.net_pos_x:
-                    return LeftOfNetEvent()
-
+        # Guard against nulls
+        if not recent or recent[0].ball is None:
             return None
 
+        ball_x = recent[0].ball.pos.x
+
+        if self.side == "right":
+            if ball_x > self.net_pos_x:
+                return RightOfNetEvent()
+
+        if self.side == "left":
+            if ball_x <= self.net_pos_x:
+                return LeftOfNetEvent()
+
+        return None
 # --- COMPLEX TESTERS ---
 
 class BounceOrShotTester:
@@ -91,8 +80,8 @@ class BounceOrShotTester:
 
 class EventTesters:
     # Instantiate SideTester twice with different configurations
-    LEFT_SIDE = SideTester(target_right=False, event_class=LeftOfNetEvent)
-    RIGHT_SIDE = SideTester(target_right=True, event_class=RightOfNetEvent)
+    LEFT_SIDE = SideTester(side="right")
+    RIGHT_SIDE = SideTester(side="left")
 
     # Physics-based detection
     BOUNCE_SHOT = BounceOrShotTester()
