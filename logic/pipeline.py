@@ -10,7 +10,7 @@ from vision import VisionSystem, get_court_calibration
 def process_frames():
     fps = 60
     system = VisionSystem("tennis2.mp4")
-    stack = FrameStack(60)
+    stack = FrameStack(fps)
     i = 0
     order = OrderOfEvents()
     while True:
@@ -27,10 +27,13 @@ def process_frames():
             result = tester.test_event(stack)
             if result is not None:
                 # Pass events for which the test passes to event frames
-                order.addEvent(EventFrame(frame, result.to_string()))
+                results.append(result)
+                order.addEvent(EventFrame(i, result.to_string()))
         # Extract the event strings from the EventFrame objects
-        event_descriptions = [res.event for res in results]
+        event_descriptions = [res.to_string() for res in results]
         print(f"Frame {i}: {' | '.join(event_descriptions)}")
+        if len(stack.elements) > 5 * fps:
+            stack.dequeue()
 
         # Merge consecutive events
         order.mergeConsecutiveEvents()
