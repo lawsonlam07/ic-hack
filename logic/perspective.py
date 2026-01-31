@@ -21,6 +21,7 @@ class FrameUnskew:
     def unskew_cords(self, points: list[list[float]]):
         pts_array = np.array(points, dtype="float32").reshape(-1, 1, 2)
         return cv2.perspectiveTransform(pts_array, self.matrix).reshape(-1, 2)
+        # returns list[list[float]]
 
 frame = FrameUnskew([[0, 0], [0, 1], [1, 1], [1, 0]])
 print(frame.unskew_cords([[0.5, 0]]))
