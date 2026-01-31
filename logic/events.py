@@ -133,15 +133,19 @@ class PlayerMovementTester:
         return None
 
 class BallStoppedTester:
-    def __init__(self, velocity_threshold: float = 0.05):
-        self.min_stopped_frames = 5
+    def __init__(self, velocity_threshold: float = 0.05, min_stopped_seconds: float = 0.5, fps: int = 60):
+        self.min_stopped_seconds = min_stopped_seconds
         self.velocity_threshold = velocity_threshold
+        self.fps = fps
         
     def test_event(self, frames: FrameStack):
-        recent = frames.takeFrames(self.min_stopped_frames + 1)
+        # Calculate number of frames needed based on seconds and fps
+        min_stopped_frames = int(self.min_stopped_seconds * self.fps)
+        
+        recent = frames.takeFrames(min_stopped_frames + 1)
 
         # Guard against nulls
-        if len(recent) < self.min_stopped_frames + 1:
+        if len(recent) < min_stopped_frames + 1:
             return None
 
         if any(f is None or f.ball is None for f in recent):
@@ -160,7 +164,7 @@ class BallStoppedTester:
                 stopped_count += 1
 
         # Ball has been stopped for minimum duration
-        if stopped_count >= self.min_stopped_frames:
+        if stopped_count >= min_stopped_frames:
             return BallStoppedEvent()
 
         return None
