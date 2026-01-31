@@ -1,4 +1,4 @@
-from .Frame import Frame
+from .normalisedframe import NormalisedFrame
 
 class FrameStack:
   def __init__(self, fps : int):
@@ -6,7 +6,7 @@ class FrameStack:
     self.topPointer = -1
     self.fps = fps
 
-  def push(self, frame : Frame):
+  def push(self, frame : NormalisedFrame):
     self.elements.append(frame)
     self.topPointer += 1
 
