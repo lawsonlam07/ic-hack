@@ -37,28 +37,29 @@ class SideTester:
         self.event_class = event_class
         self.net_pos_x = 11.885  # Half of 23.77m
 
-    def test_event(self, frames: FrameStack):
-        # Take the last 2 frames to detect a transition
-        recent = frames.takeFrames(2)
+    class SideTester:
+        def __init__(self, side: str):
+            self.side = side
+            self.net_pos_x = 11.885
 
-        # 1. Guard: Need 2 frames with valid balls to detect a 'switch'
-        if len(recent) < 2 or any(f.ball is None for f in recent):
+        def test_event(self, frames: FrameStack):
+            recent = frames.takeFrames(1)
+
+            # Guard against nulls
+            if not recent or recent[0].ball is None:
+                return None
+
+            ball_x = recent[0].ball.pos.x
+
+            if self.side == "right":
+                if ball_x > self.net_pos_x:
+                    return RightOfNetEvent()
+
+            if self.side == "left":
+                if ball_x <= self.net_pos_x:
+                    return LeftOfNetEvent()
+
             return None
-
-        # 2. Check sides for both frames
-        prev_is_right = recent[0].ball.pos.x > self.net_pos_x
-        curr_is_right = recent[1].ball.pos.x > self.net_pos_x
-
-        # 3. Logic: Trigger ONLY if it just entered the target side
-        # Example: If target is RIGHT, we trigger when (Prev=Left and Curr=Right)
-        if self.target_right:
-            if not prev_is_right and curr_is_right:
-                return self.event_class()
-        else:
-            if prev_is_right and not curr_is_right:
-                return self.event_class()
-
-        return None
 
 # --- COMPLEX TESTERS ---
 
