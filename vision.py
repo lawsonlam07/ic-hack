@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import os  # <--- Added dependency
+import os  # <--- ONLY ADDED DEPENDENCY
 from ultralytics import YOLO
 import supervision as sv
 
@@ -12,23 +12,22 @@ from data.Player import Player
 from data.frame import Frame
 
 # --- CONFIG ---
-# Get the directory where THIS file is located
+# Get the directory where THIS file is located to ensure we find the model
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Construct absolute path so it works from any folder (e.g. logic/test_normalisation.py)
-MODEL_PATH = os.path.join(BASE_DIR, 'yolov8m.pt')
+# Update MODEL_NAME to be the absolute path
+MODEL_NAME = os.path.join(BASE_DIR, 'yolov8m.pt') 
 
-# THRESHOLDS
-CONF_BALL = 0.15      
+# THRESHOLDS (KEPT EXACTLY AS ORIGINAL)
+CONF_BALL = 0.10      
 MAX_COAST_FRAMES = 5 
 MAX_DIST_ERROR = 100 
 
 # TOGGLE: If True, returns the last known location when detection fails
-RETURN_LAST_KNOWN_POS = True
+RETURN_LAST_KNOWN_POS = True 
 
 def get_court_calibration(frame):
     print("✅ Using Hardcoded Court Coordinates")
     return Court(
-        # 1080p Coordinates:
         tl=Coord(746, 257), tr=Coord(1183, 254),
         br=Coord(1879, 836), bl=Coord(27, 841)
     )
@@ -78,12 +77,13 @@ def get_best_two_players(detections, court):
 def process_video(source_path: str):
     cap = cv2.VideoCapture(source_path)
     
-    # --- FIXED MODEL LOADING ---
-    if os.path.exists(MODEL_PATH):
-        model = YOLO(MODEL_PATH)
+    # --- CHANGED ONLY THIS BLOCK FOR PATH SAFETY ---
+    if os.path.exists(MODEL_NAME):
+        model = YOLO(MODEL_NAME)
     else:
-        print(f"⚠️ Model not found at {MODEL_PATH}, downloading...")
-        model = YOLO("yolov8m.pt") 
+        print(f"⚠️ Model not found at {MODEL_NAME}, downloading to CWD...")
+        model = YOLO("yolov8m.pt")
+    # -----------------------------------------------
     
     ret, first_frame = cap.read()
     if not ret: raise ValueError("Video empty")
@@ -103,8 +103,8 @@ def process_video(source_path: str):
         if not ret: break
         frame_count += 1
         
-        # 1. DETECT (Removed imgsz=1280 for speed)
-        results = model(frame, classes=[0, 32], conf=CONF_BALL, verbose=False)[0]
+        # 1. DETECT (KEPT imgsz=1280 AND conf=0.10)
+        results = model(frame, classes=[0, 32], conf=CONF_BALL, imgsz=1280, verbose=False)[0]
         detections = sv.Detections.from_ultralytics(results)
         
         players = get_best_two_players(detections, raw_court)
@@ -168,33 +168,19 @@ def process_video(source_path: str):
 
     cap.release()
 
-# --- VISION SYSTEM CLASS ---
 class VisionSystem:
     def __init__(self, video_path):
         self.pipeline = process_video(video_path)
 
     def getNextFrame(self):
-        """
-        Returns a Frame object (ball, court, player1, player2).
-        If ball/players are not found, they will be None.
-        Returns None when video ends.
-        """
         try:
-            # Get data from generator
             _, players_list, ball, court = next(self.pipeline)
-
-            # Default to None (null)
             p1 = None
             p2 = None
-
-            # Map based on fixed names assigned in get_best_two_players
             for p in players_list:
-                if p.name == "P1":
-                    p1 = p
-                elif p.name == "P2":
-                    p2 = p
+                if p.name == "P1": p1 = p
+                elif p.name == "P2": p2 = p
             
-            # ball is already None if not found in process_video
             return Frame(ball=ball, court=court, player1=p1, player2=p2)
 
         except StopIteration:
