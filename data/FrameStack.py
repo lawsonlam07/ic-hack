@@ -8,9 +8,14 @@ class FrameStack:
 
   def push(self, frame : Frame):
     self.elements.append(frame)
+    self.topPointer += 1
 
   def dequeue(self):
+    self.topPointer -= 1
     return self.elements.pop(0)
+  
+  def peek(self):
+    return self.elements[self.topPointer]
   
   def takeSeconds(self, seconds: int):
     #Returns the most recent frames covering the last `seconds`.
