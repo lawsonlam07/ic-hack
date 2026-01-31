@@ -10,9 +10,9 @@ from logic.perspective import FrameUnskew
 from vision import VisionSystem, get_court_calibration
 
 
-def process_frames():
+def process_frames(url):
     fps = 60
-    system = VisionSystem("tennis2.mp4")
+    system = VisionSystem(url)
     stack = FrameStack(fps)
     i = 0
     order = OrderOfEvents()
