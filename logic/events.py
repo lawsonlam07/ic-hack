@@ -170,40 +170,48 @@ class BallStoppedTester:
         return None
 
 class BallInOutTester:
-    def __init__(self, court_x_min: float = 0.0, court_x_max: float = 23.77,
-                 court_z_min: float = 0.0, court_z_max: float = 10.97):
+    def __init__(self):
         self.last_state = None  # Track last known state to detect transitions
-        self.court_x_min = court_x_min
-        self.court_x_max = court_x_max
-        self.court_z_min = court_z_min
-        self.court_z_max = court_z_max
 
     def test_event(self, frames: FrameStack):
         recent = frames.takeFrames(3)
 
         # Guard against nulls
-        if len(recent) < 3 or any(f is None or f.ball is None for f in recent):
+        if len(recent) < 3 or any(f is None or f.ball is None or f.court is None for f in recent):
             return None
 
-        ball = recent[-1].ball
-
-        # Check if ball is on or near ground (bounce point)
-        # Note: Ball only has x and y coordinates, so we use y for height
-        if ball.pos.y > 0.2:
-            return None  # Only check when ball is near ground
-
         # Check if ball has just bounced (reversal in vertical velocity)
-        # Since we only have x,y we'll check y as the vertical component
-        v1_y = recent[1].ball.pos.y - recent[0].ball.pos.y
-        v2_y = recent[2].ball.pos.y - recent[1].ball.pos.y
+        # We need to infer vertical movement from the trajectory
+        # Calculate distances between consecutive ball positions
+        d1 = np.sqrt((recent[1].ball.pos.x - recent[0].ball.pos.x)**2 + 
+                     (recent[1].ball.pos.y - recent[0].ball.pos.y)**2)
+        d2 = np.sqrt((recent[2].ball.pos.x - recent[1].ball.pos.x)**2 + 
+                     (recent[2].ball.pos.y - recent[1].ball.pos.y)**2)
         
-        just_bounced = (v1_y < 0) and (v2_y > 0)
+        # Detect bounce: significant change in velocity/direction (similar to BounceEvent logic)
+        if d1 > 0:
+            speed_ratio = d2 / d1
+            # Bounce detected if there's a significant loss of velocity
+            just_bounced = speed_ratio < 0.8
+        else:
+            return None
 
         if not just_bounced:
             return None
 
-        # Check boundaries (using only x coordinate since we don't have z)
-        is_in_bounds = (self.court_x_min <= ball.pos.x <= self.court_x_max)
+        # Get court boundaries
+        court = recent[-1].court
+        ball_pos = recent[-1].ball.pos
+        
+        # Check if ball is within court boundaries using point-in-polygon test
+        # Court corners: tl (top-left), tr (top-right), br (bottom-right), bl (bottom-left)
+        is_in_bounds = self._point_in_quadrilateral(
+            ball_pos,
+            court.tl,
+            court.tr,
+            court.br,
+            court.bl
+        )
 
         current_state = "in" if is_in_bounds else "out"
 
@@ -216,6 +224,30 @@ class BallInOutTester:
                 return BallOutEvent()
 
         return None
+
+    def _point_in_quadrilateral(self, point: 'Coord', tl: 'Coord', tr: 'Coord', br: 'Coord', bl: 'Coord') -> bool:
+        """
+        Check if a point is inside a quadrilateral using the cross product method.
+        The point is inside if it's on the same side of all four edges.
+        """
+        def sign(p1: 'Coord', p2: 'Coord', p3: 'Coord') -> float:
+            return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
+        
+        # Check if point is on the correct side of each edge
+        # Edge 1: tl -> tr
+        d1 = sign(point, tl, tr)
+        # Edge 2: tr -> br
+        d2 = sign(point, tr, br)
+        # Edge 3: br -> bl
+        d3 = sign(point, br, bl)
+        # Edge 4: bl -> tl
+        d4 = sign(point, bl, tl)
+        
+        # Point is inside if all signs are the same (all positive or all negative)
+        has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0) or (d4 < 0)
+        has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0) or (d4 > 0)
+        
+        return not (has_neg and has_pos)
 
 # --- REGISTRY ---
 
