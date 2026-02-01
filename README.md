@@ -3,7 +3,7 @@ _Restoring the Visual Narrative of Sport_
 
 This is our entry for IC Hack 26, entering in the Sports and Tech for Good (IMChange) categories.
 
-Ball Knowledge is an AI-powered accessibility framework developed for ICHack 26. Our mission is to provide visually impaired individuals with the same tactical depth and emotional immersion as sighted fans, using a single video feed to generate a rich, spatial audio-description.
+Ball Knowledge is an AI-powered accessibility framework developed for ICHack 26. Our mission is to provide individual games with the same tactical depth and emotional immersion as professional matches, using a single video feed to generate a rich, spatial audio-description.
 
 ## 💻 Interface
 The interface for our web app is sleek and intuitive. Using a minimalist approach, we have boiled the page down to its bare essentials as to not overwhelm the user.
@@ -15,42 +15,37 @@ The interface for our web app is sleek and intuitive. Using a minimalist approac
 3. A final layer of customisation allows the user to tailor the commentator's style to better suit their needs.
 
 ## 🎗️ Charity: British Blind Sport
-While developing Ball Knowledge, we identified British Blind Sport (BBS) as our primary "North Star" for social impact. BBS is the UK’s leading charity dedicated to making sport accessible for the 340,000+ people in the UK living with sight loss.
+While developing Ball Knowledge, we aligned our goals with Access Sport, a charity dedicated to providing disabled and disadvantaged young people with access to the life-changing benefits of sport.
 
-Our project directly supports their mission through three key technological interventions:
+Our framework supports their "Inclusive Club Network" through three primary pillars:
 
-1. Closing the "Tactical Gap"
-Standard radio commentary often focuses on the score and the crowd's energy. However, for a blind athlete or fan, the most important data is spatial. By using Planar Homography, our system translates a 2D broadcast into a top-down coordinate system, allowing the AI to describe player positioning and court depth—data points that BBS coaches emphasize for tactical understanding.
+Digital Equity for Local Clubs Access Sport works in the UK’s most deprived areas where high-tech broadcast equipment is non-existent. Ball Knowledge brings "Grand Slam" level technology to local park courts. This can bring professional audio commentary to a local club match or youth tournament, allowing amateur athletes to feel like pros and local clubs to build more inclusive communities.
 
-2. Democratizing Audio Description (AD)
-Currently, high-quality Audio Description is only available for professional Grand Slams. For the thousands of grassroots events supported by BBS, fans are often left without any descriptive aid. Ball Knowledge provides a zero-cost, scalable way for local clubs to make their tournament replays accessible, ensuring that every level of the sport is inclusive.
+Sensory-Friendly Spectatorship For neurodivergent fans, standard high-velocity commentary can cause sensory overload. Our platform offers a "Calm Mode" that replaces chaotic hype with a structured, descriptive narrative tailored to the user's sensory needs—aligning with Access Sport’s mission to create inclusive, welcoming environments for all.
 
-3. Personalised Coaching Reviews
-Beyond spectatorship, we envision this tool being used by BBS athletes to review their own matches. By hearing their movements described back to them (e.g., "You were caught 3 meters behind the baseline on that return"), players can build a stronger mental map of their performance, aiding in training and skill development.
-
-"At its heart, sport is about the thrill of the movement and the strategy of the play. Our goal is to ensure that a visual impairment never means missing out on the story being told on the court."
+Scaling Volunteer Impact Grassroots clubs rely on volunteers who are often stretched thin. By automating descriptive commentary and match analysis, we empower these clubs to provide an accessible experience for parents and fans without needing extra human resources.
 
 ## 🌍 The Mission: Why This Matters
-For the 2.2 billion people globally living with vision impairment, following a fast-paced sport like tennis is an exercise in frustration. Current solutions - like standard radio commentary - often fail to describe:
+For many, following a fast-paced sport like tennis is an exercise in exclusion. Whether due to visual impairment, neurodivergence, or simply a lack of resources in local parks, standard broadcasts fail to provide an inclusive narrative. Current solutions often ignore:
 
-Positioning: Where is the player relative to the baseline?
+Spatial Context: Where is the player positioned? Is a local youth player holding their ground or being forced wide?
 
-Tactics: Are they charging the net or being forced wide?
+Sensory Needs: Standard commentary is often a chaotic "sensory minefield" of overlapping noise that can overwhelm neurodivergent fans.
 
-Physics: How close was that ball to the line?
+Grassroots Representation: Professional-grade analysis is usually a luxury of the elite, leaving local club matches and youth tournaments invisible.
 
-Ball Knowledge solves this by using AI to "see" the court and translate spatial data into a narrative that restores the viewer's mental model of the game.
+Ball Knowledge solves this by democratizing sports technology. We use AI to "see" the court, translating raw spatial data into a narrative that restores the viewer's mental model of the game—regardless of their sensory needs or the zip code of the court.
 
 ## ❤️ Social Impact & Charity Alignment
-We built this project with the aim of providing blind fans with a data-rich experience in mind. It has the advantage of that doesn't rely on a human being available to describe it.
+We built Ball Knowledge to ensure that no fan or athlete is left on the sidelines. By removing the need for a sighted companion or a professional broadcast team, we provide a scalable solution for inclusive sport at every level.
 
-Our ptoject relates to the core values of Inclusion, Dignity, and Equity:
+Our project is rooted in three core values:
 
-Independent Spectatorship: We provide the tools for blind fans to enjoy a match independently, without needing a sighted companion to explain the action.
+**Independent Spectatorship**: We provide the tools for blind and partially sighted fans to follow the "spatial story" of a match autonomously. By translating raw data into descriptive audio, we restore the dignity of an independent viewing experience.
 
-Empowering Grassroots Sport: High-quality audio description is currently a luxury reserved for the Grand Slams. We make it accessible for local club tournaments, youth games, and school matches - ensuring no community is left behind.
+**Democratizing the Grassroots**: High-quality commentary is currently a luxury reserved for the elite. We bring this "Grand Slam" experience to local park courts and youth tournaments, ensuring that disadvantaged communities have access to the same technology as professional academies.
 
-Autonomy through Choice: By allowing users to customize the "Persona" of the commentator, we respect the diverse ways people engage with sport, from data-driven analysis to hype-filled narration.
+**Sensory Autonomy**: We recognize that "one size fits all" commentary doesn't work for neurodivergent fans. By allowing users to choose between high-energy personas or "Calm Mode," we respect individual sensory needs and prevent cognitive overload.
 
 ## 🛠️ Algorithms
 A simplified rundown of the processes at work is as follows:
