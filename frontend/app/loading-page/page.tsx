@@ -35,6 +35,31 @@ export default function LoadingPage() {
         setCurrentStep("Uploading video...")
         setProgress(10)
 
+        // Handle YouTube URL download first if needed
+        let videoFileName = formData.videoFileName
+        if (formData.uploadMethod === "url" && formData.videoUrl) {
+          setCurrentStep("Downloading video from YouTube...")
+          setProgress(15)
+
+          const downloadResponse = await fetch("http://localhost:5000/api/download-youtube", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url: formData.videoUrl }),
+          })
+
+          if (!downloadResponse.ok) {
+            const errorData = await downloadResponse.json()
+            throw new Error(errorData.error || "Failed to download YouTube video")
+          }
+
+          const downloadResult = await downloadResponse.json()
+          videoFileName = downloadResult.filename
+
+          console.log("✅ YouTube video downloaded:", videoFileName)
+        }
+
         // Create FormData for the API request
         const apiFormData = new FormData()
 
@@ -44,6 +69,9 @@ export default function LoadingPage() {
         } else if (formData.uploadMethod === "file" && !videoFile) {
           setError("Video file not found. Please go back and try again.")
           return
+        } else if (formData.uploadMethod === "url") {
+          // For URL downloads, we need to tell the backend to use the downloaded file
+          apiFormData.append("video_filename", videoFileName)
         }
 
         // Map frontend preferences to backend format

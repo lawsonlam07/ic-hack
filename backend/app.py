@@ -57,6 +57,66 @@ def health_check():
     """Health check endpoint"""
     return jsonify({'status': 'healthy', 'message': 'Tennis commentary server is running'}), 200
 
+@app.route('/api/download-youtube', methods=['POST'])
+def download_youtube():
+    """
+    Download a YouTube video and save it locally
+    Expects: JSON with 'url' field
+    Returns: JSON with video path
+    """
+    try:
+        data = request.get_json()
+        youtube_url = data.get('url')
+
+        if not youtube_url:
+            return jsonify({'error': 'No URL provided'}), 400
+
+        print(f"📥 Downloading YouTube video: {youtube_url}")
+
+        # Generate filename
+        timestamp = int(time.time())
+        output_template = str(UPLOAD_FOLDER / f"{timestamp}_%(title)s.%(ext)s")
+
+        # Use yt-dlp to download the video
+        import subprocess
+
+        # Download with best quality video+audio
+        result = subprocess.run([
+            'yt-dlp',
+            '-f', 'best[ext=mp4]/best',  # Prefer mp4 format
+            '--no-playlist',  # Don't download playlists
+            '-o', output_template,
+            youtube_url
+        ], capture_output=True, text=True)
+
+        if result.returncode != 0:
+            print(f"❌ yt-dlp error: {result.stderr}")
+            return jsonify({'error': f'Failed to download video: {result.stderr}'}), 500
+
+        # Find the downloaded file
+        import glob
+        downloaded_files = glob.glob(str(UPLOAD_FOLDER / f"{timestamp}_*"))
+
+        if not downloaded_files:
+            return jsonify({'error': 'Download succeeded but file not found'}), 500
+
+        video_path = downloaded_files[0]
+        video_filename = os.path.basename(video_path)
+
+        print(f"✅ Downloaded: {video_filename}")
+
+        return jsonify({
+            'success': True,
+            'video_path': video_path,
+            'filename': video_filename
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Error downloading YouTube video: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/process-video', methods=['POST'])
 def process_video():
     """
@@ -409,14 +469,6 @@ def generate_full_commentary():
     5. Returns audio file
     """
     try:
-        # Validate request
-        if 'video' not in request.files:
-            return jsonify({'error': 'No video file provided'}), 400
-
-        video_file = request.files['video']
-        if video_file.filename == '':
-            return jsonify({'error': 'No video file selected'}), 400
-
         # Get preferences from form data
         preferences = {
             'style': request.form.get('style', 'professional'),
@@ -425,14 +477,38 @@ def generate_full_commentary():
             'duration': request.form.get('duration', '60')
         }
 
-        print(f"📹 Processing video: {video_file.filename}")
-        print(f"⚙️ Preferences: {preferences}")
-
-        # Save uploaded video
+        # Check if video_filename is provided (for pre-downloaded videos)
         timestamp = int(time.time())
-        video_filename = f"{timestamp}_{video_file.filename}"
-        video_path = UPLOAD_FOLDER / video_filename
-        video_file.save(str(video_path))
+
+        if 'video_filename' in request.form:
+            # Video was already downloaded (e.g., from YouTube)
+            video_filename = request.form.get('video_filename', '')
+            if not video_filename:
+                return jsonify({'error': 'Video filename is empty'}), 400
+
+            video_path = UPLOAD_FOLDER / video_filename
+
+            if not video_path.exists():
+                return jsonify({'error': 'Downloaded video file not found'}), 400
+
+            print(f"📹 Processing pre-downloaded video: {video_filename}")
+            print(f"⚙️ Preferences: {preferences}")
+        else:
+            # Normal file upload
+            if 'video' not in request.files:
+                return jsonify({'error': 'No video file provided'}), 400
+
+            video_file = request.files['video']
+            if video_file.filename == '':
+                return jsonify({'error': 'No video file selected'}), 400
+
+            print(f"📹 Processing uploaded video: {video_file.filename}")
+            print(f"⚙️ Preferences: {preferences}")
+
+            # Save uploaded video
+            video_filename = f"{timestamp}_{video_file.filename}"
+            video_path = UPLOAD_FOLDER / video_filename
+            video_file.save(str(video_path))
 
         # Step 1: Generate commentary with Claude
         print("🤖 Generating commentary with Claude...")

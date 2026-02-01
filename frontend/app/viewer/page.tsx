@@ -2,6 +2,7 @@
 
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -13,7 +14,6 @@ import {
   Maximize,
   SkipBack,
   SkipForward,
-  Download,
 } from "lucide-react";
 
 interface CommentarySegment {
@@ -637,16 +637,15 @@ export default function ViewerPage() {
       <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <Image src="/file.svg" alt="Ball Knowledge Logo" width={50} height={50} />
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
               Ball Knowledge
             </h1>
-          </div>
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
+          </Link>
         </div>
 
         {/* Warning banner if audio is not available */}
