@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { getVideoFile, clearVideoFile } from "@/lib/videoStorage"
@@ -10,7 +10,7 @@ export default function LoadingPage() {
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState("Uploading video...")
   const [error, setError] = useState<string | null>(null)
-  const [hasSubmitted, setHasSubmitted] = useState(false)
+  const hasSubmittedRef = useRef(false)
 
   const steps = [
     "Uploading video...",
@@ -21,10 +21,10 @@ export default function LoadingPage() {
 
   useEffect(() => {
     // Prevent duplicate submissions in React Strict Mode
-    if (hasSubmitted) return
+    if (hasSubmittedRef.current) return
+    hasSubmittedRef.current = true
 
     const submitToBackend = async () => {
-      setHasSubmitted(true)
       try {
         // Get form data from sessionStorage
         const formDataStr = sessionStorage.getItem("videoFormData")
@@ -154,7 +154,7 @@ export default function LoadingPage() {
     }
 
     submitToBackend()
-  }, [router, hasSubmitted])
+  }, [router])
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6 flex items-center justify-center">
