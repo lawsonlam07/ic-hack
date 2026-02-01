@@ -16,7 +16,6 @@ OUTPUT_SCRIPT_FILE = str(PROJECT_ROOT / "outputs" / "commentary_script.txt")
 PERSONA = "Energetic, fast-paced tennis commentator like Robbie Koenig"
 
 def main():
-    # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Ball Knowledge - Tennis Commentary Generator")
     parser.add_argument(
         "--json-only",
