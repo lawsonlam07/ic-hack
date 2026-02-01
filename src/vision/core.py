@@ -24,7 +24,7 @@ MAX_DIST_ERROR = 100
 RETURN_LAST_KNOWN_POS = False 
 
 def get_court_calibration(frame):
-    print("✅ Using Hardcoded Court Coordinates")
+    print("✅ Using Hardcoded Court Coordinates", flush=True)
     return Court(
         tl=Coord(746, 257), tr=Coord(1183, 254),
         br=Coord(1879, 836), bl=Coord(27, 841)

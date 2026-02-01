@@ -34,18 +34,14 @@ from config import (
 
 # Import pipeline functions
 try:
-    import importlib
     from logic.pipeline import process_frames
-    import voice.prompts
-    # Force reload to avoid cached bytecode issues
-    importlib.reload(voice.prompts)
-    generate_commentary_from_events = voice.prompts.generate_commentary
+    from voice.prompts import generate_commentary as generate_commentary_from_events
     PIPELINE_AVAILABLE = True
-    print("✅ Pipeline modules loaded successfully")
+    print("✅ Pipeline modules loaded successfully", flush=True)
 except ImportError as e:
     PIPELINE_AVAILABLE = False
     generate_commentary_from_events = None  # type: ignore
-    print(f"⚠️ Pipeline modules not available: {e}")
+    print(f"⚠️ Pipeline modules not available: {e}", flush=True)
 
 app = Flask(__name__)
 CORS(app)
@@ -587,34 +583,35 @@ def generate_full_commentary():
             video_file.save(str(video_path))
 
         # Step 1: Process video frames to extract events
+        print(f"📊 PIPELINE_AVAILABLE: {PIPELINE_AVAILABLE}", flush=True)
         if PIPELINE_AVAILABLE:
-            print("🎬 Processing video frames...")
+            print("🎬 Processing video frames...", flush=True)
             raw_json = process_frames(str(video_path))
-            print(f"✅ Extracted events from video")
+            print(f"✅ Extracted events from video", flush=True)
 
             # Save JSON for debugging
             json_output_path = UPLOAD_FOLDER / f"{timestamp}_events.json"
             with open(json_output_path, 'w') as f:
                 f.write(raw_json)
-            print(f"📝 Saved events to {json_output_path}")
+            print(f"📝 Saved events to {json_output_path}", flush=True)
 
             # Step 2: Generate commentary from events
-            print("🤖 Generating commentary with Claude based on video analysis...")
+            print("🤖 Generating commentary with Claude based on video analysis...", flush=True)
             persona = f"{preferences['style']} tennis commentator with {preferences['energy']} energy"
             assert generate_commentary_from_events is not None, "Pipeline should be available"
             commentary_script = generate_commentary_from_events(raw_json, persona)
-            print(f"✅ Generated commentary script")
+            print(f"✅ Generated commentary script", flush=True)
 
             # Save script for debugging
             script_output_path = UPLOAD_FOLDER / f"{timestamp}_script.txt"
             with open(script_output_path, 'w') as f:
                 f.write(commentary_script)
-            print(f"📝 Saved script to {script_output_path}")
+            print(f"📝 Saved script to {script_output_path}", flush=True)
 
             # Parse the commentary script into timestamped segments
             # The script from generate_commentary should have timestamps
             commentary_segments = parse_commentary_script_to_segments(commentary_script)
-            print(f"✅ Parsed {len(commentary_segments)} commentary segments")
+            print(f"✅ Parsed {len(commentary_segments)} commentary segments", flush=True)
         else:
             # Fallback: Use old method if pipeline not available
             print("⚠️ Pipeline not available, using fallback commentary generation...")
@@ -630,7 +627,7 @@ def generate_full_commentary():
         audio_segments_data = None
         if ELEVENLABS_AVAILABLE:
             try:
-                print("🎙️ Converting to speech with ElevenLabs...")
+                print("🎙️ Converting to speech with ElevenLabs...", flush=True)
                 audio_segments = generate_audio_commentary(commentary_segments, preferences)
 
                 # Save each audio segment as a separate file
@@ -662,7 +659,7 @@ def generate_full_commentary():
                     })
                     print(f"   URL: {audio_url}")
 
-                print(f"✅ Saved {len(audio_segments_data)} audio segments")
+                print(f"✅ Saved {len(audio_segments_data)} audio segments", flush=True)
             except Exception as e:
                 print(f"⚠️ Failed to generate audio: {e}")
                 print("   Continuing with text commentary only")

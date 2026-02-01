@@ -41,7 +41,7 @@ def process_frames(url):
         
         # Print progress so we know it's working
         event_descriptions = [res.to_string() for res in results]
-        print(f"Frame {i}: {' | '.join(event_descriptions)}")
+        print(f"Frame {i}: {' | '.join(event_descriptions)}", flush=True)
             
         if len(stack.elements) > 5 * fps:
             stack.dequeue()
