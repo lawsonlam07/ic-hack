@@ -276,6 +276,7 @@ def parse_timestamped_commentary(commentary_text):
 def generate_commentary_for_video(video_path, preferences):
     """
     Generate tennis commentary using Claude AI
+    Returns a list of segment dictionaries with timestamp and text
     """
     style = preferences.get('style', 'professional')
     energy_level = preferences.get('energy', 'medium')
@@ -287,15 +288,9 @@ Commentary Style: {style}
 Energy Level: {energy_level}
 Video Duration: approximately {duration} seconds
 
-IMPORTANT FORMATTING RULES:
-- Do NOT use any formatting characters like asterisks, underscores, or markdown
-- Use plain text only
-- Start each line with a timestamp in the format "0:05 - "
-- Keep each commentary segment on a single line
-
 Generate a natural, flowing commentary that:
 1. Creates an exciting narrative for a tennis match
-2. Includes realistic play-by-play moments with clear timestamps
+2. Includes realistic play-by-play moments
 3. Describes serves, volleys, rallies, and match points
 4. Builds excitement and drama appropriate to the energy level
 5. Maintains the specified style throughout
@@ -304,12 +299,21 @@ Generate a natural, flowing commentary that:
 8. Don't refer to players' names unless they appear onscreen
 9. Don't refer to the score unless it appears onscreen
 
-Example format:
-0:00 - Welcome to this exciting tennis match
-0:05 - The first serve is powerful and well-placed
-0:12 - What a rally, both players showing incredible footwork
+CRITICAL: You MUST respond with valid JSON ONLY. No other text before or after.
+Format your response as a JSON array of segments:
 
-Keep it engaging and approximately {duration} seconds worth of spoken content."""
+[
+  {{"timestamp": 0, "text": "Welcome to this exciting tennis match"}},
+  {{"timestamp": 5, "text": "The first serve is powerful and well-placed"}},
+  {{"timestamp": 12, "text": "What a rally, both players showing incredible footwork"}}
+]
+
+Rules:
+- timestamp is in seconds (integer or float)
+- text should be 1-3 sentences that flow naturally when spoken
+- Keep it engaging and approximately {duration} seconds worth of content
+- Use plain language, no markdown or special characters
+- Return ONLY the JSON array, nothing else"""
 
     response = anthropic_client.messages.create(
         model=CLAUDE_MODEL,
@@ -319,38 +323,53 @@ Keep it engaging and approximately {duration} seconds worth of spoken content.""
         ]
     )
 
-    commentary_text = response.content[0].text
-    return commentary_text
+    response_text = response.content[0].text.strip()
+    print(f"📝 Raw Claude response: {response_text[:300]}...")
 
-def generate_audio_commentary(commentary_text, preferences):
+    # Parse JSON response
+    try:
+        # Try to extract JSON from markdown code blocks if present
+        if response_text.startswith('```'):
+            # Extract content between ```json and ``` or ``` and ```
+            import re
+            json_match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', response_text, re.DOTALL)
+            if json_match:
+                response_text = json_match.group(1).strip()
+                print(f"📝 Extracted JSON from code block: {response_text[:200]}...")
+
+        segments = json.loads(response_text)
+        print(f"✅ Successfully parsed {len(segments)} segments")
+        return segments
+    except json.JSONDecodeError as e:
+        print(f"⚠️ Failed to parse JSON response: {e}")
+        print(f"Response was: {response_text[:500]}...")
+        # Fallback: return a simple segment
+        return [{"timestamp": 0, "text": "Commentary generation encountered an error."}]
+
+def generate_audio_commentary(commentary_segments, preferences):
     """
-    Convert commentary text to speech using ElevenLabs
+    Convert commentary segments to speech using ElevenLabs
     Returns list of audio segments with timestamps for frontend synchronization
     """
     voice = preferences.get('voice', DEFAULT_VOICE)
 
     try:
-        # Parse commentary into timestamped segments
-        segments = parse_timestamped_commentary(commentary_text)
-
-        if not segments:
-            # Fallback: treat entire text as one segment
-            segments = [(0, commentary_text)]
-
-        print(f"📝 Parsed {len(segments)} commentary segments")
+        print(f"📝 Processing {len(commentary_segments)} commentary segments")
 
         # Generate audio for each segment
         audio_segments = []
-        # last_end_time = 0
 
-        for i, (timestamp, text) in enumerate(segments):
+        for i, segment in enumerate(commentary_segments):
+            timestamp = segment['timestamp']
+            text = segment['text']
+
             # Remove any remaining formatting characters
             clean_text = re.sub(r'[*_~`#\[\]]', '', text).strip()
 
             if not clean_text:
                 continue
 
-            print(f"🎙️ Generating audio segment {i+1}/{len(segments)} at {timestamp}s: {clean_text[:50]}...")
+            print(f"🎙️ Generating audio segment {i+1}/{len(commentary_segments)} at {timestamp}s: {clean_text[:50]}...")
 
             # Generate audio for this segment
             audio_stream = elevenlabs_client.text_to_speech.convert(
@@ -417,15 +436,20 @@ def generate_full_commentary():
 
         # Step 1: Generate commentary with Claude
         print("🤖 Generating commentary with Claude...")
-        commentary_text = generate_commentary_for_video(video_path, preferences)
-        print(f"✅ Generated {len(commentary_text)} characters of commentary")
+        commentary_segments = generate_commentary_for_video(video_path, preferences)
+        print(f"✅ Generated {len(commentary_segments)} commentary segments")
+
+        # Convert segments back to text format for compatibility
+        commentary_text = "\n".join([
+            f"{seg['timestamp']}s - {seg['text']}" for seg in commentary_segments
+        ])
 
         # Step 2: Convert to audio with ElevenLabs (if available)
         audio_segments_data = None
         if ELEVENLABS_AVAILABLE:
             try:
                 print("🎙️ Converting to speech with ElevenLabs...")
-                audio_segments = generate_audio_commentary(commentary_text, preferences)
+                audio_segments = generate_audio_commentary(commentary_segments, preferences)
 
                 # Save each audio segment as a separate file
                 audio_segments_data = []
