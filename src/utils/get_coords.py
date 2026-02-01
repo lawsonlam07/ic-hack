@@ -1,8 +1,12 @@
 import cv2
 import sys
 
+from data.Coord import Coord
+
+
+
 # CONFIG
-VIDEO_PATH = "tennis2_highres.mp4"
+VIDEO_PATH = "../../assets/videos/tennis2_highres.mp4"
 
 # Global State
 points = []

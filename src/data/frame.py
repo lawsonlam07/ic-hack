@@ -4,7 +4,6 @@ from .Court import Court
 from .Player import Player
 from .normalisedframe import NormalisedFrame
 
-
 class Frame:
   def __init__(self, ball : Ball, court : Court, player1 : Player, player2 : Player):
     self.ball = ball

@@ -1,10 +1,15 @@
 import cv2
 import sys
 import os
-from vision import process_video
+import sys
+from pathlib import Path
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src.vision.core import process_video
 
 # --- CONFIGURATION ---
-VIDEO_PATH = "tennis2.mp4"  # <--- REPLACE WITH YOUR VIDEO PATH
+VIDEO_PATH = "../assets/videos/tennis2.mp4"  # <--- REPLACE WITH YOUR VIDEO PATH
 SHOW_VIDEO = True          # Set to False to just print console logs
 WINDOW_NAME = "Tennis Pipeline Test" # Define window name once
 DISPLAY_WIDTH = 1280       # Initial window width

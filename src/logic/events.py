@@ -3,7 +3,6 @@ from data.framestack import FrameStack
 from data.frame import NormalisedFrame
 from logic.perspective import TENNIS_COURT_LENGTH
 
-
 # --- EVENT CLASSES ---
 
 class Event:

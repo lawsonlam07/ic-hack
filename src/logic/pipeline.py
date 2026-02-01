@@ -7,7 +7,7 @@ from data.framestack import FrameStack
 from data.orderofevents import OrderOfEvents
 from logic.events import EventTesters
 from logic.perspective import FrameUnskew
-from vision import VisionSystem, get_court_calibration
+from vision.core import VisionSystem, get_court_calibration
 
 def process_frames(url):
     fps = 60

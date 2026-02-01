@@ -1,0 +1,106 @@
+[
+    {
+        "frameIndex": 187,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 280,
+        "event": "RightOfNetEvent"
+    },
+    {
+        "frameIndex": 311,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 316,
+        "event": "ShotEvent"
+    },
+    {
+        "frameIndex": 316,
+        "event": "BallOutEvent"
+    },
+    {
+        "frameIndex": 317,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 502,
+        "event": "BounceEvent"
+    },
+    {
+        "frameIndex": 503,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 903,
+        "event": "RightOfNetEvent"
+    },
+    {
+        "frameIndex": 903,
+        "event": "ShotEvent"
+    },
+    {
+        "frameIndex": 904,
+        "event": "RightOfNetEvent"
+    },
+    {
+        "frameIndex": 904,
+        "event": "ShotEvent"
+    },
+    {
+        "frameIndex": 905,
+        "event": "RightOfNetEvent"
+    },
+    {
+        "frameIndex": 905,
+        "event": "BounceEvent"
+    },
+    {
+        "frameIndex": 962,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 1467,
+        "event": "BounceEvent"
+    },
+    {
+        "frameIndex": 1468,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 1468,
+        "event": "BounceEvent"
+    },
+    {
+        "frameIndex": 1469,
+        "event": "RightOfNetEvent"
+    },
+    {
+        "frameIndex": 1648,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 2060,
+        "event": "BounceEvent"
+    },
+    {
+        "frameIndex": 2061,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 2061,
+        "event": "BounceEvent"
+    },
+    {
+        "frameIndex": 2062,
+        "event": "LeftOfNetEvent"
+    },
+    {
+        "frameIndex": 2613,
+        "event": "RightOfNetEvent"
+    },
+    {
+        "frameIndex": 3175,
+        "event": "LeftOfNetEvent"
+    }
+]

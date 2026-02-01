@@ -1,12 +1,13 @@
 import cv2
 import os
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Import the specific function we want to test
-from vision import get_court_calibration
+from src.vision.core import get_court_calibration
 
 # --- CONFIG ---
-VIDEO_PATH = "tennis2.mp4"
+VIDEO_PATH = "../assets/videos/tennis2.mp4"
 DISPLAY_WIDTH = 1280  # Target width for the popup
 
 def draw_debug_court(frame, court):

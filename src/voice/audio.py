@@ -1,7 +1,6 @@
 import streamlit as st
-from events import TennisEvent
-from prompts import generate_commentary, speak_text
-
+from voice.events import TennisEvent
+from voice.prompts import generate_commentary, speak_text
 st.set_page_config(page_title="CourtSide AI", layout="wide")
 
 st.title("🎾 CourtSide AI | Live Commentary")

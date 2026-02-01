@@ -13,7 +13,7 @@ from data.frame import Frame
 
 # --- CONFIG ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_NAME = os.path.join(BASE_DIR, 'yolov8m.pt') 
+MODEL_NAME = os.path.join(BASE_DIR, '..', '..', 'assets', 'models', 'yolov8m.pt')
 
 # THRESHOLDS
 CONF_BALL = 0.10      
@@ -77,16 +77,38 @@ def get_best_two_players(detections, court):
     return players
 
 def process_video(source_path: str):
+    # DEBUG: Video file
+    print(f"🔍 Attempting to open video: {source_path}")
+    print(f"   File exists: {os.path.exists(source_path)}")
+    if os.path.exists(source_path):
+        print(f"   File size: {os.path.getsize(source_path)} bytes")
+    
     cap = cv2.VideoCapture(source_path)
     
+    # DEBUG: VideoCapture status
+    print(f"   VideoCapture opened: {cap.isOpened()}")
+    if cap.isOpened():
+        print(f"   Frame count: {int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}")
+        print(f"   FPS: {cap.get(cv2.CAP_PROP_FPS)}")
+    
+    # DEBUG: Model loading
+    print(f"🔍 Looking for model at: {MODEL_NAME}")
+    print(f"   Model exists: {os.path.exists(MODEL_NAME)}")
+    
     if os.path.exists(MODEL_NAME):
+        print(f"   Loading model from {MODEL_NAME}")
         model = YOLO(MODEL_NAME)
     else:
         print(f"⚠️ Model not found at {MODEL_NAME}, downloading to CWD...")
         model = YOLO("yolov8m.pt")
     
     ret, first_frame = cap.read()
-    if not ret: raise ValueError("Video empty")
+    if not ret:
+        print(f"❌ Failed to read first frame!")
+        print(f"   cap.isOpened() = {cap.isOpened()}")
+        raise ValueError("Video empty")
+    
+    print(f"✅ Successfully read first frame: {first_frame.shape}")
     
     raw_court = get_court_calibration(first_frame)
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)

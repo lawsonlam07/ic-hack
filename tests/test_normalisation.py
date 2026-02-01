@@ -3,6 +3,13 @@ import numpy as np
 import sys
 import os
 
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src.vision.core import VisionSystem
+from src.data.Coord import Coord 
+from src.logic.perspective import FrameUnskew, TENNIS_COURT_LENGTH, TENNIS_COURT_SINGLES_WIDTH
+
 # --- 1. PATHS ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.dirname(current_dir)
@@ -14,7 +21,7 @@ from data.Coord import Coord
 from logic.perspective import FrameUnskew, TENNIS_COURT_LENGTH, TENNIS_COURT_SINGLES_WIDTH
 
 # --- 3. CONFIG ---
-VIDEO_PATH = os.path.join(root_dir, "tennis2.mp4")
+VIDEO_PATH = "../assets/videos/tennis2.mp4"
 
 # We render internally at high quality (720p height) so text is crisp.
 # The window can be scaled down by the user or our auto-sizer below.
