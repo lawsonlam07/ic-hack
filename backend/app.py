@@ -3,13 +3,13 @@ import os
 import json
 import time
 import re
-import io
+# import io
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from anthropic import Anthropic
 from elevenlabs import ElevenLabs
-from pydub import AudioSegment
+# from pydub import AudioSegment
 
 # Load environment variables from .env file FIRST
 load_dotenv()
@@ -324,8 +324,8 @@ Keep it engaging and approximately {duration} seconds worth of spoken content.""
 
 def generate_audio_commentary(commentary_text, preferences):
     """
-    Convert commentary text to speech using ElevenLabs with timestamp syncing
-    Returns audio file bytes
+    Convert commentary text to speech using ElevenLabs
+    Returns list of audio segments with timestamps for frontend synchronization
     """
     voice = preferences.get('voice', DEFAULT_VOICE)
 
@@ -341,7 +341,7 @@ def generate_audio_commentary(commentary_text, preferences):
 
         # Generate audio for each segment
         audio_segments = []
-        last_end_time = 0
+        # last_end_time = 0
 
         for i, (timestamp, text) in enumerate(segments):
             # Remove any remaining formatting characters
@@ -350,7 +350,7 @@ def generate_audio_commentary(commentary_text, preferences):
             if not clean_text:
                 continue
 
-            print(f"🎙️ Generating audio for segment {i+1}/{len(segments)} at {timestamp}s: {clean_text[:50]}...")
+            print(f"🎙️ Generating audio segment {i+1}/{len(segments)} at {timestamp}s: {clean_text[:50]}...")
 
             # Generate audio for this segment
             audio_stream = elevenlabs_client.text_to_speech.convert(
@@ -364,31 +364,14 @@ def generate_audio_commentary(commentary_text, preferences):
             for chunk in audio_stream:
                 segment_audio_bytes += chunk
 
-            # Convert to AudioSegment
-            segment_audio = AudioSegment.from_mp3(io.BytesIO(segment_audio_bytes))
+            audio_segments.append({
+                'timestamp': timestamp,
+                'text': clean_text,
+                'audio': segment_audio_bytes
+            })
 
-            # Add silence before this segment if needed
-            if timestamp > last_end_time:
-                silence_duration = (timestamp - last_end_time) * 1000  # Convert to milliseconds
-                silence = AudioSegment.silent(duration=int(silence_duration))
-                audio_segments.append(silence)
-
-            audio_segments.append(segment_audio)
-            last_end_time = timestamp + (len(segment_audio) / 1000.0)  # Update end time
-
-        # Combine all audio segments
-        print("🔗 Stitching audio segments together...")
-        if audio_segments:
-            final_audio = audio_segments[0]
-            for segment in audio_segments[1:]:
-                final_audio += segment
-
-            # Export to bytes
-            output_buffer = io.BytesIO()
-            final_audio.export(output_buffer, format="mp3")
-            return output_buffer.getvalue()
-        else:
-            raise Exception("No audio segments generated")
+        print(f"✅ Generated {len(audio_segments)} audio segments")
+        return audio_segments
 
     except Exception as e:
         print(f"❌ ElevenLabs/Audio error: {e}")
@@ -438,33 +421,56 @@ def generate_full_commentary():
         print(f"✅ Generated {len(commentary_text)} characters of commentary")
 
         # Step 2: Convert to audio with ElevenLabs (if available)
-        audio_url = None
+        audio_segments_data = None
         if ELEVENLABS_AVAILABLE:
             try:
                 print("🎙️ Converting to speech with ElevenLabs...")
-                audio_bytes = generate_audio_commentary(commentary_text, preferences)
-                print(f"✅ Generated {len(audio_bytes)} bytes of audio")
+                audio_segments = generate_audio_commentary(commentary_text, preferences)
 
-                # Save audio file
-                audio_filename = f"{timestamp}_commentary.mp3"
-                audio_path = UPLOAD_FOLDER / audio_filename
-                with open(audio_path, 'wb') as f:
-                    f.write(audio_bytes)
+                # Save each audio segment as a separate file
+                audio_segments_data = []
+                for i, segment in enumerate(audio_segments):
+                    audio_filename = f"{timestamp}_segment_{i}.mp3"
+                    audio_path = UPLOAD_FOLDER / audio_filename
 
-                audio_url = f'/api/audio/{audio_filename}'
+                    print(f"💾 Saving audio segment {i} to: {audio_path}")
+                    print(f"   Audio data size: {len(segment['audio'])} bytes")
+
+                    with open(audio_path, 'wb') as f:
+                        bytes_written = f.write(segment['audio'])
+                        print(f"   Wrote {bytes_written} bytes to disk")
+
+                    # Verify file was created
+                    if audio_path.exists():
+                        file_size = audio_path.stat().st_size
+                        print(f"   ✅ File created: {file_size} bytes on disk")
+                    else:
+                        print(f"   ❌ File not found after writing!")
+
+                    # Add segment metadata for frontend
+                    audio_url = f'/api/audio/{audio_filename}'
+                    audio_segments_data.append({
+                        'timestamp': segment['timestamp'],
+                        'text': segment['text'],
+                        'audio_url': audio_url
+                    })
+                    print(f"   URL: {audio_url}")
+
+                print(f"✅ Saved {len(audio_segments_data)} audio segments")
             except Exception as e:
                 print(f"⚠️ Failed to generate audio: {e}")
                 print("   Continuing with text commentary only")
+                audio_segments_data = None
         else:
             print("⚠️ ElevenLabs not available - returning text commentary only")
 
-        # Return response with audio file (if generated) and metadata
+        # Return response with audio segments (if generated) and metadata
         return jsonify({
             'success': True,
-            'audio_url': audio_url,
+            'audio_segments': audio_segments_data,
             'commentary_text': commentary_text,
             'video_filename': video_filename,
-            'has_audio': audio_url is not None
+            'has_audio': audio_segments_data is not None
         }), 200
 
     except Exception as e:
@@ -479,16 +485,28 @@ def serve_audio(filename):
     Serve generated audio files
     """
     try:
+        print(f"📡 Audio request received for: {filename}")
         audio_path = UPLOAD_FOLDER / filename
+        print(f"   Looking for file at: {audio_path}")
+        print(f"   File exists: {audio_path.exists()}")
+
+        if audio_path.exists():
+            file_size = audio_path.stat().st_size
+            print(f"   File size: {file_size} bytes")
+
         if not audio_path.exists():
+            print(f"   ❌ File not found!")
+            print(f"   Directory contents: {list(UPLOAD_FOLDER.glob('*'))}")
             return jsonify({'error': 'Audio file not found'}), 404
 
+        print(f"   ✅ Serving audio file")
         return send_file(
             str(audio_path),
             mimetype='audio/mpeg',
             as_attachment=False
         )
     except Exception as e:
+        print(f"   ❌ Error serving audio: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
