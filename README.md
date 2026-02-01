@@ -14,6 +14,22 @@ The interface for our web app is sleek and intuitive. Using a minimalist approac
 2. The method of input is simple and intuitive.
 3. A final layer of customisation allows the user to tailor the commentator's style to better suit their needs.
 
+## 🎗️ Charity: British Blind Sport
+While developing Ball Knowledge, we identified British Blind Sport (BBS) as our primary "North Star" for social impact. BBS is the UK’s leading charity dedicated to making sport accessible for the 340,000+ people in the UK living with sight loss.
+
+Our project directly supports their mission through three key technological interventions:
+
+1. Closing the "Tactical Gap"
+Standard radio commentary often focuses on the score and the crowd's energy. However, for a blind athlete or fan, the most important data is spatial. By using Planar Homography, our system translates a 2D broadcast into a top-down coordinate system, allowing the AI to describe player positioning and court depth—data points that BBS coaches emphasize for tactical understanding.
+
+2. Democratizing Audio Description (AD)
+Currently, high-quality Audio Description is only available for professional Grand Slams. For the thousands of grassroots events supported by BBS, fans are often left without any descriptive aid. Ball Knowledge provides a zero-cost, scalable way for local clubs to make their tournament replays accessible, ensuring that every level of the sport is inclusive.
+
+3. Personalised Coaching Reviews
+Beyond spectatorship, we envision this tool being used by BBS athletes to review their own matches. By hearing their movements described back to them (e.g., "You were caught 3 meters behind the baseline on that return"), players can build a stronger mental map of their performance, aiding in training and skill development.
+
+"At its heart, sport is about the thrill of the movement and the strategy of the play. Our goal is to ensure that a visual impairment never means missing out on the story being told on the court."
+
 ## 🌍 The Mission: Why This Matters
 For the 2.2 billion people globally living with vision impairment, following a fast-paced sport like tennis is an exercise in frustration. Current solutions - like standard radio commentary - often fail to describe:
 
