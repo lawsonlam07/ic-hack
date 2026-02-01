@@ -14,7 +14,7 @@ The interface for our web app is sleek and intuitive. Using a minimalist approac
 2. The method of input is simple and intuitive.
 3. A final layer of customisation allows the user to tailor the commentator's style to better suit their needs.
 
-## 🎗️ Charity: British Blind Sport
+## 🎗️ Charity: Access Sport
 While developing Ball Knowledge, we aligned our goals with Access Sport, a charity dedicated to providing disabled and disadvantaged young people with access to the life-changing benefits of sport.
 
 Our framework supports their "Inclusive Club Network" through three primary pillars:
@@ -23,9 +23,11 @@ Digital Equity for Local Clubs Access Sport works in the UK’s most deprived ar
 
 Sensory-Friendly Spectatorship For neurodivergent fans, standard high-velocity commentary can cause sensory overload. Our platform offers a "Calm Mode" that replaces chaotic hype with a structured, descriptive narrative tailored to the user's sensory needs—aligning with Access Sport’s mission to create inclusive, welcoming environments for all.
 
-Scaling Volunteer Impact Grassroots clubs rely on volunteers who are often stretched thin. By automating descriptive commentary and match analysis, we empower these clubs to provide an accessible experience for parents and fans without needing extra human resources.
+Grassroots clubs are the lifeblood of sport, but they rely on volunteers who are often stretched thin. Providing accessibility services like live audio description usually requires dedicated personnel that local clubs simply don't have.
 
-## 🌍 The Mission: Why This Matters
+Ball Knowledge acts as an "Automated Volunteer." By handling descriptive commentary and match analysis in the cloud, we empower local clubs to provide a professional, accessible experience for parents and fans without requiring additional human resources. This allows coaches and volunteers to stay focused on what they do best: mentoring the next generation of athletes.
+
+## 🌍 The Mission: Equity in Every Match
 For many, following a fast-paced sport like tennis is an exercise in exclusion. Whether due to visual impairment, neurodivergence, or simply a lack of resources in local parks, standard broadcasts fail to provide an inclusive narrative. Current solutions often ignore:
 
 Spatial Context: Where is the player positioned? Is a local youth player holding their ground or being forced wide?
