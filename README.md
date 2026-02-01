@@ -23,7 +23,9 @@ Digital Equity for Local Clubs Access Sport works in the UK’s most deprived ar
 
 Sensory-Friendly Spectatorship For neurodivergent fans, standard high-velocity commentary can cause sensory overload. Our platform offers a "Calm Mode" that replaces chaotic hype with a structured, descriptive narrative tailored to the user's sensory needs—aligning with Access Sport’s mission to create inclusive, welcoming environments for all.
 
-Scaling Volunteer Impact Grassroots clubs rely on volunteers who are often stretched thin. By automating descriptive commentary and match analysis, we empower these clubs to provide an accessible experience for parents and fans without needing extra human resources.
+Grassroots clubs are the lifeblood of sport, but they rely on volunteers who are often stretched thin. Providing accessibility services like live audio description usually requires dedicated personnel that local clubs simply don't have.
+
+Ball Knowledge acts as an "Automated Volunteer." By handling descriptive commentary and match analysis in the cloud, we empower local clubs to provide a professional, accessible experience for parents and fans without requiring additional human resources. This allows coaches and volunteers to stay focused on what they do best: mentoring the next generation of athletes.
 
 ## 🌍 The Mission: Equity in Every Match
 For many, following a fast-paced sport like tennis is an exercise in exclusion. Whether due to visual impairment, neurodivergence, or simply a lack of resources in local parks, standard broadcasts fail to provide an inclusive narrative. Current solutions often ignore:
