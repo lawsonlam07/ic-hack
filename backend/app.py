@@ -34,12 +34,17 @@ from config import (
 
 # Import pipeline functions
 try:
+    import importlib
     from logic.pipeline import process_frames
-    from voice.prompts import generate_commentary
+    import voice.prompts
+    # Force reload to avoid cached bytecode issues
+    importlib.reload(voice.prompts)
+    generate_commentary_from_events = voice.prompts.generate_commentary
     PIPELINE_AVAILABLE = True
     print("✅ Pipeline modules loaded successfully")
 except ImportError as e:
     PIPELINE_AVAILABLE = False
+    generate_commentary_from_events = None  # type: ignore
     print(f"⚠️ Pipeline modules not available: {e}")
 
 app = Flask(__name__)
@@ -596,7 +601,8 @@ def generate_full_commentary():
             # Step 2: Generate commentary from events
             print("🤖 Generating commentary with Claude based on video analysis...")
             persona = f"{preferences['style']} tennis commentator with {preferences['energy']} energy"
-            commentary_script = generate_commentary(raw_json, persona)
+            assert generate_commentary_from_events is not None, "Pipeline should be available"
+            commentary_script = generate_commentary_from_events(raw_json, persona)
             print(f"✅ Generated commentary script")
 
             # Save script for debugging
