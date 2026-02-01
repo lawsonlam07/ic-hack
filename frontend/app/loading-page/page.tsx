@@ -21,31 +21,44 @@ export default function LoadingPage() {
 
   useEffect(() => {
     // Prevent duplicate submissions in React Strict Mode
-    if (hasSubmittedRef.current) return
+    console.log("🔍 useEffect running, hasSubmittedRef.current:", hasSubmittedRef.current)
+    if (hasSubmittedRef.current) {
+      console.log("⚠️ Already submitted, returning early")
+      return
+    }
     hasSubmittedRef.current = true
+    console.log("✅ Setting hasSubmittedRef to true, proceeding with submission")
 
     const submitToBackend = async () => {
       try {
+        console.log("🚀 submitToBackend() function called")
         // Get form data from sessionStorage
         const formDataStr = sessionStorage.getItem("videoFormData")
         const videoFile = getVideoFile()
+        console.log("📋 Form data string:", formDataStr)
+        console.log("📹 Video file:", videoFile)
 
         if (!formDataStr) {
+          console.error("❌ No form data found in sessionStorage")
           setError("No form data found. Please go back and try again.")
           return
         }
 
         const formData = JSON.parse(formDataStr)
+        console.log("📝 Parsed form data:", formData)
 
         setCurrentStep("Uploading video...")
         setProgress(10)
 
         // Handle YouTube URL download first if needed
         let videoFileName = formData.videoFileName
+        console.log("📂 Upload method:", formData.uploadMethod)
         if (formData.uploadMethod === "url" && formData.videoUrl) {
+          console.log("🔗 URL upload detected, downloading from:", formData.videoUrl)
           setCurrentStep("Downloading video from YouTube...")
           setProgress(15)
 
+          console.log("📡 Fetching: http://localhost:5000/api/download-youtube")
           const downloadResponse = await fetch("http://localhost:5000/api/download-youtube", {
             method: "POST",
             headers: {
@@ -66,15 +79,19 @@ export default function LoadingPage() {
         }
 
         // Create FormData for the API request
+        console.log("📦 Creating FormData for backend request")
         const apiFormData = new FormData()
 
         // Add video file if it's a file upload
         if (formData.uploadMethod === "file" && videoFile) {
+          console.log("📤 Adding video file to FormData:", videoFile.name)
           apiFormData.append("video", videoFile)
         } else if (formData.uploadMethod === "file" && !videoFile) {
+          console.error("❌ Video file not found for file upload")
           setError("Video file not found. Please go back and try again.")
           return
         } else if (formData.uploadMethod === "url") {
+          console.log("📂 Adding video_filename to FormData:", videoFileName)
           // For URL downloads, we need to tell the backend to use the downloaded file
           apiFormData.append("video_filename", videoFileName)
         }
@@ -110,15 +127,21 @@ export default function LoadingPage() {
         apiFormData.append("voice", voiceMap[formData.voice] || "93nuHbke4dTER9x2pDwE")
         apiFormData.append("duration", "60")
 
+        console.log("⚙️ Added preferences to FormData")
         setProgress(20)
         setCurrentStep("Generating AI commentary...")
 
         // Make request to Flask backend
         const backendUrl = "http://localhost:5000/api/generate-full-commentary"
+        console.log("🚀 MAKING FETCH REQUEST TO:", backendUrl)
+        console.log("📦 FormData contents:", Array.from(apiFormData.entries()))
+
         const backendResponse = await fetch(backendUrl, {
           method: "POST",
           body: apiFormData,
         })
+
+        console.log("✅ Fetch request completed, status:", backendResponse.status)
 
         setProgress(70)
         setCurrentStep("Converting to speech...")
@@ -147,12 +170,14 @@ export default function LoadingPage() {
         }, 500)
 
       } catch (err) {
-        console.error("Error:", err)
+        console.error("❌ ERROR CAUGHT:", err)
+        console.error("Error stack:", err instanceof Error ? err.stack : "No stack trace")
         setError(err instanceof Error ? err.message : "An error occurred")
         setCurrentStep("Error occurred")
       }
     }
 
+    console.log("🏃 Calling submitToBackend()...")
     submitToBackend()
   }, [router])
 
